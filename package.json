@@ -1,0 +1,30 @@
+{
+  "name": "backend-cibersummary",
+  "version": "1.0.0",
+  "description": "Back End do projeto feito principalmente para as alunas do Mulher Digital, para consulta de termos, siglas e significados dos cursos.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon ./src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/juliaarapiraca/backend-cibersummary.git"
+  },
+  "keywords": [],
+  "author": "Júlia Arapiraca",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/juliaarapiraca/backend-cibersummary/issues"
+  },
+  "homepage": "https://github.com/juliaarapiraca/backend-cibersummary#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "pg": "^8.16.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
