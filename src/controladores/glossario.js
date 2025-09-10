@@ -1,14 +1,14 @@
-const { query } = require("../banco de dados/conexao");
+const knex = require("../banco de dados/conexao");
 
 const listarTermos = async (req, res) => {
   try {
-    const termos = await query("SELECT * FROM glossario");
+    const termos = await knex("glossario").select("*");
 
-    if (!termos.rows || termos.rows.length === 0) {
+    if (!termos || termos.length === 0) {
       return res.status(404).json({ mensagem: "Não há termos cadastrados" });
     }
 
-    return res.status(200).json(termos.rows);
+    return res.status(200).json(termos);
   } catch (error) {
     return res.status(500).json({ mensagem: `Erro Interno: ${error.message}` });
   }
@@ -22,23 +22,11 @@ const adicionarTermo = async (req, res) => {
   }
 
   try {
-    const queryCadastro = `
-      INSERT INTO glossario (termo, sigla, significado, curso) 
-      VALUES ($1, $2, $3, $4) 
-      RETURNING *`;
+    const [novoTermo] = await knex("glossario")
+      .insert({ termo, sigla, significado, curso })
+      .returning("*");
 
-    const { rowCount, rows } = await query(queryCadastro, [
-      termo,
-      sigla,
-      significado,
-      curso,
-    ]);
-
-    if (rowCount <= 0) {
-      return res.status(500).json({ mensagem: "Erro Interno ao cadastrar" });
-    }
-
-    return res.status(201).json(rows[0]);
+    return res.status(201).json(novoTermo);
   } catch (error) {
     return res.status(500).json({ mensagem: `Erro Interno: ${error.message}` });
   }
@@ -53,34 +41,18 @@ const editarTermo = async (req, res) => {
   }
 
   try {
-    const termoExistente = await query(
-      "SELECT * FROM glossario WHERE id = $1",
-      [id]
-    );
+    const termoExistente = await knex("glossario").where({ id }).first();
 
-    if (termoExistente.rowCount <= 0) {
+    if (!termoExistente) {
       return res.status(404).json({ mensagem: "O termo não existe" });
     }
 
-    const queryEdicao = `
-      UPDATE glossario 
-      SET termo = $1, sigla = $2, significado = $3, curso = $4 
-      WHERE id = $5 
-      RETURNING *`;
+    const [termoAtualizado] = await knex("glossario")
+      .update({ termo, sigla, significado, curso })
+      .where({ id })
+      .returning("*");
 
-    const { rowCount, rows } = await query(queryEdicao, [
-      termo,
-      sigla,
-      significado,
-      curso,
-      id,
-    ]);
-
-    if (rowCount <= 0) {
-      return res.status(500).json({ mensagem: "Erro Interno ao editar" });
-    }
-
-    return res.status(200).json(rows[0]);
+    return res.status(200).json(termoAtualizado);
   } catch (error) {
     return res.status(500).json({ mensagem: `Erro Interno: ${error.message}` });
   }
@@ -90,55 +62,45 @@ const excluirTermo = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const termoExistente = await query(
-      "SELECT * FROM glossario WHERE id = $1",
-      [id]
-    );
+    const termoExistente = await knex("glossario").where({ id }).first();
 
-    if (termoExistente.rowCount <= 0) {
+    if (!termoExistente) {
       return res.status(404).json({ mensagem: "O termo não existe" });
     }
 
-    const { rowCount, rows } = await query(
-      "DELETE FROM glossario WHERE id = $1 RETURNING *",
-      [id]
-    );
+    const [termoExcluido] = await knex("glossario")
+      .where({ id })
+      .del()
+      .returning("*");
 
-    if (rowCount <= 0) {
-      return res.status(500).json({ mensagem: "Erro Interno ao excluir" });
-    }
-
-    return res.status(200).json(rows[0]);
+    return res.status(200).json(termoExcluido);
   } catch (error) {
     return res.status(500).json({ mensagem: `Erro Interno: ${error.message}` });
   }
 };
 
-// Exemplo de filtro por curso ou termo
+// Filtro por curso ou termo
 const filtrarTermos = async (req, res) => {
   const { termo, curso } = req.query;
 
   try {
-    let filtro = "SELECT * FROM glossario WHERE 1=1";
-    const params = [];
+    let query = knex("glossario").select("*");
 
     if (termo) {
-      params.push(`%${termo}%`);
-      filtro += ` AND termo ILIKE $${params.length}`;
+      query.whereILike("termo", `%${termo}%`);
     }
 
     if (curso) {
-      params.push(`%${curso}%`);
-      filtro += ` AND curso ILIKE $${params.length}`;
+      query.whereILike("curso", `%${curso}%`);
     }
 
-    const { rows } = await query(filtro, params);
+    const termos = await query;
 
-    if (rows.length === 0) {
+    if (termos.length === 0) {
       return res.status(404).json({ mensagem: "Nenhum termo encontrado" });
     }
 
-    return res.status(200).json(rows);
+    return res.status(200).json(termos);
   } catch (error) {
     return res.status(500).json({ mensagem: `Erro Interno: ${error.message}` });
   }
