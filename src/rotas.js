@@ -1,7 +1,7 @@
 const express = require('express');
 const { listarTermos, adicionarTermo, excluirTermo, editarTermo } = require('./controladores/glossario');
 
-const rotas = express();
+const rotas = express.Router();
 
 rotas.get('/glossario', listarTermos);
 rotas.post('/novotermo', adicionarTermo);
