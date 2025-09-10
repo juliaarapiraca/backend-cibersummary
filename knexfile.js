@@ -4,7 +4,7 @@ module.exports = {
   production: {
     client: "pg",
     connection: {
-      connectionString: process.env.DATABASE_URL,
+      connectionString: process.env.DB_HOST,
       ssl: { rejectUnauthorized: false }
     },
     migrations: {
