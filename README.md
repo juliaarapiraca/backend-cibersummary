@@ -1,6 +1,6 @@
 ## API REST CiberSummary (por Júlia Menezes Arapiraca)
 
-### LINK DO DEPLOY: [https://meu-controle-de-gastos.herokuapp.com](https://backend-cibersummary.onrender.com]
+### LINK DO DEPLOY: [https://backend-cibersummary.onrender.com]
 
 Back End do projeto feito principalmente para as alunas do Mulher Digital, para consulta de termos, siglas e significados dos cursos. Foi usado JavaScript e NodeJS, assim como as bibliotecas dotenv, express, knex, pg e nodemon. Ela possui as seguintes funcionalidades:
 
